@@ -46,7 +46,7 @@ namespace Wordle
                 //I believe most of your AI code could go here. The AI here needs to intelligently choose the next word to guess. Use AIWordList to help you. 
                 //Comment out the line above before uncommenting this line.
 
-                if (wordGuessCount == 1) currentGuessWord = "ocean"; // first guess
+                if (wordGuessCount == 1) currentGuessWord = "slate"; // first guess
                 else currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)]; // otherwise random (from a MUCH smaller list)
                 char[] guessChars = currentGuessWord.ToCharArray();
 
@@ -166,7 +166,7 @@ namespace Wordle
                     Console.ForegroundColor = ConsoleColor.Yellow;
                 else
                     Console.ForegroundColor = ConsoleColor.White;
-                // this just makes a more saturated yellow
+                                                                            // this just makes a more saturated yellow
                 if (statusTracker[i] == LetterStatus.WrongPlace) Console.Write($"\u001b[38;2;255;255;0m{guessChars[i]}");  //print the letter
                 else Console.Write(guessChars[i]);  //print the letter
                 Console.ForegroundColor = ConsoleColor.White;  //reset back to white for the next letter
