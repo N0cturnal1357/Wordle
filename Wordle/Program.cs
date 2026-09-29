@@ -47,7 +47,10 @@ namespace Wordle
                 //Comment out the line above before uncommenting this line.
 
                 if (wordGuessCount == 1) currentGuessWord = "slate"; // first guess
-                else currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)]; // otherwise random (from a MUCH smaller list)
+                else
+                {
+                    currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)]; // otherwise random (from a MUCH smaller list)
+                }
                 char[] guessChars = currentGuessWord.ToCharArray();
 
                 //Leave this alone. It checks to see if the word you guessed is a valid word. This will work for your AI too. If the guessed word
@@ -66,19 +69,28 @@ namespace Wordle
                 // filter words
                 for (int i = 0; i < guessChars.Length; i++)
                 {
+                    char _char = guessChars[i];
                     if (AIStatusTracker[i] == LetterStatus.Correct) // keep words with green at [i]
                     {
-                        char required = guessChars[i];
                         int pos = i;
-                        AIWordList.RemoveAll(w => w[pos] != required);
+                        AIWordList.RemoveAll(w => w[pos] != _char);
                     }
-
-                    if (AIStatusTracker[i] == LetterStatus.WrongPlace || AIStatusTracker[i] == LetterStatus.Incorrect) // remove yellows/red at [i]
+                    else // remove yellows/blank at [i]
                     {
                         char remove = guessChars[i];
                         int pos = i;
                         AIWordList.RemoveAll(w => w[pos] == remove);
                     }
+
+                    //BREAKS PROGRAM ????
+                    /*
+                    if (AIStatusTracker[i] == LetterStatus.Incorrect) // remove blanks
+                    {
+                        char remove = guessChars[i];
+                        int pos = i;
+                        AIWordList.RemoveAll(w => w.Contains(remove));
+                    }
+                    */
                 }
 
                 AIWordList.Remove(currentGuessWord); // remove the last word guessed to prevent repeats
