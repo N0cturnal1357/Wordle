@@ -5,6 +5,10 @@ namespace Wordle
 {
     internal class Program
     {
+        // GME-1020 A1 - Wordle - Jessica Daley
+        // I forgot to put this ↑ info in the repo title... 
+
+        // Current avg guesses to solve (rounded): 6
 
         enum LetterStatus
         {
@@ -34,6 +38,8 @@ namespace Wordle
 
 
             //You can create your own variables here if needed.
+            List<char> greens = new List<char>();
+            List<char> yellows = new List<char>();
 
             while (wordCount < 100)  //change this to 100 when ready to flex your AI. 10 is just for testing.
             {
@@ -47,10 +53,7 @@ namespace Wordle
                 //Comment out the line above before uncommenting this line.
 
                 if (wordGuessCount == 1) currentGuessWord = "slate"; // first guess
-                else
-                {
-                    currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)]; // otherwise random (from a MUCH smaller list)
-                }
+                else currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)]; // otherwise random (from a MUCH smaller list)
                 char[] guessChars = currentGuessWord.ToCharArray();
 
                 //Leave this alone. It checks to see if the word you guessed is a valid word. This will work for your AI too. If the guessed word
@@ -69,29 +72,54 @@ namespace Wordle
                 // filter words
                 for (int i = 0; i < guessChars.Length; i++)
                 {
-                    char _char = guessChars[i];
+                    if (AIStatusTracker[i] == LetterStatus.Correct) // keep words with green at [i] && remove words without green at [i]
+                    {
+                        if (!greens.Contains(guessChars[i])) // if letter is not found in list of greens
+                        {
+                            greens.Add(guessChars[i]); // add to list of greens
+                        }
+                        AIWordList.RemoveAll(word => word[i] != guessChars[i]);
+                    }
+                    else if (AIStatusTracker[i] == LetterStatus.WrongPlace) // remove yellows at [i]
+                    {
+                        if (!yellows.Contains(guessChars[i])) // if letter is not found in list of yellows
+                        {
+                            yellows.Add(guessChars[i]); // add to list of yellows
+                        }
+                        AIWordList.RemoveAll(word => word[i] == guessChars[i]);
+                    }
+                    else // remove blanks at [i] && blanks in any word if they are not also a yellow or green elsewhere in a word
+                    {
+                        // remove all blanks at position [i]
+                        AIWordList.RemoveAll(word => word[i] == guessChars[i]); 
+
+                        // remove blanks at any position if letter is not found in green or yellow
+                        if (!yellows.Contains(guessChars[i]) && !greens.Contains(guessChars[i]))
+                        {
+                            AIWordList.RemoveAll(word => word.Contains(guessChars[i])); 
+                        }
+                    }
+                }
+
+
+                /*
+                for (int i = 0; i < guessChars.Length; i++)
+                {
                     if (AIStatusTracker[i] == LetterStatus.Correct) // keep words with green at [i]
                     {
+                        char required = guessChars[i];
                         int pos = i;
-                        AIWordList.RemoveAll(w => w[pos] != _char);
+                        AIWordList.RemoveAll(w => w[pos] != required);
                     }
-                    else // remove yellows/blank at [i]
+
+                    if (AIStatusTracker[i] == LetterStatus.WrongPlace || AIStatusTracker[i] == LetterStatus.Incorrect) // remove yellows/red at [i]
                     {
                         char remove = guessChars[i];
                         int pos = i;
                         AIWordList.RemoveAll(w => w[pos] == remove);
                     }
-
-                    //BREAKS PROGRAM ????
-                    /*
-                    if (AIStatusTracker[i] == LetterStatus.Incorrect) // remove blanks
-                    {
-                        char remove = guessChars[i];
-                        int pos = i;
-                        AIWordList.RemoveAll(w => w.Contains(remove));
-                    }
-                    */
                 }
+                */
 
                 AIWordList.Remove(currentGuessWord); // remove the last word guessed to prevent repeats
 
