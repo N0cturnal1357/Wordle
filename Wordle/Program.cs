@@ -40,8 +40,6 @@ namespace Wordle
             //You can create your own variables here if needed.
             List<char> greens = new List<char>();
             List<char> yellows = new List<char>();
-            List<char> blanks = new List<char>();
-            string localMysteryWord = mysteryWord; // for testing purposes, to see what the mystery word is
 
             while (wordCount < 1000)  //change this to 100 when ready to flex your AI. 10 is just for testing.
             {
@@ -110,7 +108,6 @@ namespace Wordle
                                 AIWordList.RemoveAll(word => word.Contains(guessChars[i])); // remove words with blanks anywhere
                             }
                             Console.WriteLine($"Removed all words with {guessChars[i]}");
-                            if (!blanks.Contains(guessChars[i])) blanks.Add(guessChars[i]); // add to list of blanks
                         }
                     }
                 }
