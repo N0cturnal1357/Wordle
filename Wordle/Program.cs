@@ -8,7 +8,7 @@ namespace Wordle
         // GME-1020 A1 - Wordle - Jessica Daley
         // I forgot to put this ↑ info in the repo title... 
 
-        // Current avg guesses to solve: 5-6
+        // Current avg guesses to solve: 4.6
 
         enum LetterStatus
         {
@@ -40,22 +40,32 @@ namespace Wordle
             //You can create your own variables here if needed.
             List<char> greens = new List<char>();
             List<char> yellows = new List<char>();
+            List<string> worstWords = new List<string>();
 
             while (wordCount < 1000)  //change this to 100 when ready to flex your AI. 10 is just for testing.
             {
                 //Leave this alone. It counts how many words have been guessed.
                 wordGuessCount++;
+
+                if (wordGuessCount > 6)
+                {
+                   if (!worstWords.Contains(mysteryWord)) worstWords.Add(mysteryWord);
+                }
+
+                
                 //currentGuessWord = GetWord("What is your guess: ");
 
                 //AI START
                 //I believe most of your AI code could go here. The AI here needs to intelligently choose the next word to guess. Use AIWordList to help you. 
                 //Comment out the line above before uncommenting this line.
 
-               
+
                 Console.WriteLine($"{AIWordList.Count} words remaining in the list.");
                 if (wordGuessCount == 1) currentGuessWord = "slate"; // first guess is the best word
                 else currentGuessWord = AIWordList[_rng.Next(AIWordList.Count)]; // random guess after first guess
                 char[] guessChars = currentGuessWord.ToCharArray();
+
+
 
                 //Leave this alone. It checks to see if the word you guessed is a valid word. This will work for your AI too. If the guessed word
                 //isn't a real word, the loop will restart without costing a guess.
@@ -83,18 +93,24 @@ namespace Wordle
                         if (AIStatusTracker[i] == LetterStatus.Correct) // remove words without green
                         {
                             // prevent duplicates in greens list
-                            if (!greens.Contains(guessChars[i])) greens.Add(guessChars[i]); // add to list of greens
+                            if (!greens.Contains(guessChars[i]))
+                            {
+                                greens.Add(guessChars[i]); // add to list of greens
+                            }
                             AIWordList.RemoveAll(word => !word.Contains(guessChars[i])); // remove words without green
                             AIWordList.RemoveAll(word => word[i] != guessChars[i]); // remove words without green at [i] position
                         }
-                        else if (AIStatusTracker[i] == LetterStatus.WrongPlace) // remove words without yellow
+                    }
+
+                    for (int i = 0; i < guessChars.Length; i++)
+                    {
+                        if (AIStatusTracker[i] == LetterStatus.WrongPlace) // remove words without yellow
                         {
                             // prevent duplicates in yellows list
                             if (!yellows.Contains(guessChars[i])) yellows.Add(guessChars[i]); // add to list of yellows
                             AIWordList.RemoveAll(word => !word.Contains(guessChars[i])); // remove words without yellow
                             AIWordList.RemoveAll(word => word[i] == guessChars[i]); // remove words with yellow at [i] position
                         }
-                        //Console.WriteLine($"{guessChars[i]} checked");
                     }
 
                     for (int i = 0; i < guessChars.Length; i++)
@@ -103,11 +119,17 @@ namespace Wordle
                         if (AIStatusTracker[i] == LetterStatus.Incorrect)
                         {
                             AIWordList.RemoveAll(word => word[i] == guessChars[i]); // remove words with blanks at [i] position
-                            if (!yellows.Contains(guessChars[i]) && !greens.Contains(guessChars[i]))
+
+                            for (int c = AIWordList.Count - 1; c >= 0; c--)
                             {
-                                AIWordList.RemoveAll(word => word.Contains(guessChars[i])); // remove words with blanks anywhere
+                                if (!yellows.Contains(guessChars[i]) && !greens.Contains(guessChars[i]))
+                                {
+                                    if (AIWordList[c].Contains(guessChars[i]))
+                                    {
+                                        AIWordList.RemoveAt(c); // remove words with blanks anywhere ... doesn't work???
+                                    }
+                                }
                             }
-                            Console.WriteLine($"Removed all words with {guessChars[i]}");
                         }
                     }
                 }
@@ -125,6 +147,12 @@ namespace Wordle
                     totalGuessCount += wordGuessCount;
                     avgGuessCount = (float)totalGuessCount / wordCount;
                     Console.WriteLine("Congrats, you got it in " + wordGuessCount + "! Avg guess count = " + avgGuessCount + " Resetting the mystery word.\n");
+
+                    if (wordCount == 999)
+                    {
+                        Console.WriteLine("\n\n\nWorst words: " + string.Join(", ", worstWords) + "\n\n\n");
+                    }
+
                     mysteryWord = wordList[_rng.Next(wordList.Count)];
                     AIWordList = LoadWords();
                     wordCount++;
